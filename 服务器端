@@ -1,0 +1,63 @@
+#include<stdio.h>
+#include<winsock.h>	
+#pragma comment(lib,"ws2_32.lib")								/*加载套接字库*/
+
+int main()
+{
+
+	/*初始化套接字库*/
+	WSADATA data;												/*结构体对象*/
+	WORD v = MAKEWORD(2, 0);									/*版本类型*/
+
+	WSAStartup(v, &data);
+
+
+	/*1		创建套接字库*/
+
+	SOCKET s, s2;
+	s = socket(AF_INET, SOCK_STREAM, 0);
+	/*地址处理		端口处理*/
+	sockaddr_in addr, addr2;
+	
+	int size = sizeof(addr2);
+	addr.sin_family = AF_INET;									/*地址家族为iPv4*/
+	addr.sin_port = htons(75); 							/*端口号		无符号短整形转网络字节顺序(网络排列方式)*/
+	/*设置主机地址		任何ip(或者专有ip)*/
+	addr.sin_addr.S_un.S_addr = INADDR_ANY;						/*任何ip都可以接入*/
+
+
+	/*2		套接字绑定本地的地址和端口*/
+
+	bind(s, (sockaddr*)&addr, sizeof(addr));				/*socket类型套接字，const(常量)类型sockaddr类型指针(已被强转)，地址名字的长度*/
+
+
+	listen(s, 3);										/*监听*/
+	printf("服务器端已启动:\n");
+
+
+
+	s2 = accept(s, (sockaddr*)&addr2, &size);				/*开始接收连接请求			返回新地址*/
+	printf("已经连上\n");
+	/*进行聊天*/
+	char sen[1000] = " ";
+	char rec[1000] = " ";
+
+	while (1)
+	{
+		recv(s2, rec, sizeof(rec), 0);
+		printf("客户端说:%s\n", rec);
+
+		printf("服务器说:");
+		scanf_s("%s", sen, 100);
+		send(s2, sen, sizeof(sen), 0);
+	}
+
+
+	closesocket(s);
+	closesocket(s2);
+	WSACleanup();
+
+
+
+	return 0;
+}
