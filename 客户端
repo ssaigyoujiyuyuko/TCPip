@@ -1,0 +1,39 @@
+#include<stdio.h>
+#include<winsock.h>
+#pragma comment(lib,"ws2_32.lib")
+int main()
+{
+
+
+	WSADATA data;
+	WORD v = MAKEWORD(2, 0);
+	WSAStartup(v, &data);
+
+	SOCKET s;
+	s = socket(AF_INET, SOCK_STREAM, 0);
+	sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(75);
+	addr.sin_addr.S_un.S_addr = inet_addr("172.18.5.58");
+
+	printf("客户端启动!\n");
+	connect(s, (sockaddr*)&addr, sizeof(SOCKADDR));
+
+	char rec[1000] = " ";
+	char sen[1000] = " ";
+
+	while (1)
+	{
+		printf("输入信息:");
+		scanf_s("%s", sen, 100);
+		send(s, sen, sizeof(sen), 0);
+
+		recv(s, rec, sizeof(rec), 0);	
+		printf("服务器端说:%s\n",rec);
+	}
+
+	closesocket(s);
+	WSACleanup();
+
+	return 0;
+}
